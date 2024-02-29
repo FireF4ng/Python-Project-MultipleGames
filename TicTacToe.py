@@ -42,6 +42,8 @@ class TicTacToe:
                                                  height=30,
                                                  command=lambda x=row, y=col: self.button(x, y))
                 self.board[row][col].grid(row=row, column=col)
+        self.label = tk.Label(text="It's " + self.player + " turn ", font=('arial', 20, 'bold'))
+        self.label.grid(row=3, column=0, columnspan=3)
 
     def button(self, x, y):
         if self.board[x][y]['text'] == " ":
@@ -58,6 +60,7 @@ class TicTacToe:
                 self.main_menu_instance.menu()
             else:
                 self.next_player()
+                self.label['text'] = ("It's " + self.player + " turn ")
 
     def check_winner(self):
         """Function that checks the board for a winner. It checks colons, rows and diagonals and returns False if
