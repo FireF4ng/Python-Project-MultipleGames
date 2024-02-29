@@ -1,4 +1,4 @@
-from TicTacToe import *
+from TicTacToe import TicTacToe
 from tkinter import *
 
 
