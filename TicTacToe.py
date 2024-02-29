@@ -1,12 +1,12 @@
 import random
 import tkinter as tk
 from tkinter import messagebox
-from main import *
 
 
 class TicTacToe:
 
-    def __init__(self):
+    def __init__(self, main_menu_instance):
+        self.main_menu_instance = main_menu_instance
         self.game = tk.Tk()
         self.board = [[None for _ in range(3)] for _ in range(3)]
         self.player = ''
@@ -44,17 +44,18 @@ class TicTacToe:
                 self.board[row][col].grid(row=row, column=col)
 
     def button(self, x, y):
-        print(self.board[x][y]['text'])
         if self.board[x][y]['text'] == " ":
             self.board[x][y]['text'] = self.player
             if self.check_winner():
                 messagebox.showinfo("Tic Tac Toe ", "Player {} wins!".format(self.player))
+                self.game.quit()
                 self.game.destroy()
-                Main_menu()
+                self.main_menu_instance.menu()
             elif self.check_draw():
                 messagebox.showinfo("Tic Tac Toe", "It's a draw!")
+                self.game.quit()
                 self.game.destroy()
-                Main_menu()
+                self.main_menu_instance.menu()
             else:
                 self.next_player()
 
@@ -89,11 +90,6 @@ class TicTacToe:
                     return False
         return True
 
-    def check_move(self, x, y):
-        """Function that checks if the move is possible, it returns True if it's possible and False if it's not"""
-        if self.board[x][y] == 0:
-            return True
-        return False
 
     def next_player(self):
         if self.player == 'X':

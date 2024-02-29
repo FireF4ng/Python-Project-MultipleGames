@@ -1,11 +1,10 @@
-from TicTacToe import *
+from TicTacToe import TicTacToe
 from tkinter import *
 
 
 class Main_menu:
     def __init__(self):
         self.window = None
-        self.create()
         self.menu()
 
     def tic_tac_toe(self):
@@ -14,14 +13,13 @@ class Main_menu:
         self.window.title("Tic Tac Toe dificulty selector")
         self.window.geometry("500x500")
         tictactoe_B1 = Button(self.window, text="Easy", fg='deep sky blue', width=500, font='summer', bd=5,
-                              command=lambda: (self.window.destroy(), TicTacToe()))
+                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self)))
         tictactoe_B2 = Button(self.window, text="Medium", fg='deep sky blue', width=500, font='summer', bd=5,
-                              command=lambda: (self.window.destroy(), TicTacToe()))
+                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self)))
         tictactoe_B3 = Button(self.window, text="Hard", fg='deep sky blue', width=500, font='summer', bd=5,
-                              command=lambda: (self.window.destroy(), TicTacToe()))
-        tictactoe_B4 = Button(self.window, text="Back", fg='deep sky blue', width=500, pady=15, font='summer',
-                              bd=5,
-                              command=lambda: (self.window.destroy(), Main_menu()))
+                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self)))
+        tictactoe_B4 = Button(self.window, text="Back", fg='deep sky blue', width=500, pady=15, font='summer', bd=5,
+                              command=lambda: (self.window.destroy(), self.window.quit(), Main_menu()))
 
         tictactoe_B1.pack(side='top', pady=15)
         tictactoe_B2.pack(side='top', pady=15)
@@ -42,7 +40,7 @@ class Main_menu:
         solo_B2 = Button(self.window, text="Connect 4", fg='deep sky blue', width=500, font='summer', bd=5,
                          command=lambda: self.connect4())
         solo_B3 = Button(self.window, text="Back", fg='deep sky blue', width=500, font='summer', bd=5,
-                         command=lambda: (self.window.destroy(), Main_menu()))
+                         command=lambda: (self.window.destroy(), self.window.quit(), Main_menu()))
         solo_B1.pack(side='top', pady=15)
         solo_B2.pack(side='top', pady=15)
         solo_B3.pack(side='top', pady=15)
@@ -67,8 +65,8 @@ class Main_menu:
         self.window.mainloop()
 
     def menu(self):
+        self.create()
         self.window.title("main menu ")
-
         head = Button(self.window, text="---Welcome to the main menu---", fg='deep sky blue', width=500, pady=20,
                       font='summer',
                       bd=5)
