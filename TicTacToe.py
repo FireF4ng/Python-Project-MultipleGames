@@ -1,8 +1,7 @@
-import numpy as np
 import random
 import tkinter as tk
 from tkinter import messagebox
-from main import Main_menu
+from main import *
 
 
 class TicTacToe:
