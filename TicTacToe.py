@@ -9,6 +9,7 @@ class TicTacToe:
         self.difficulty = difficulty
         self.main_menu_instance = main_menu_instance
         self.game = tk.Tk()
+        self.label = None
         self.board = [[None for _ in range(3)] for _ in range(3)]
         self.player = ''
         self.pc = ''
@@ -17,6 +18,7 @@ class TicTacToe:
         self.main_menu()
 
     def main_menu(self):
+        """Function that creates a menu with start button before actual game."""
         self.game.title("Start Menu")
         width = 600
         height = 600
@@ -83,47 +85,60 @@ class TicTacToe:
             if self.difficulty == 1:
                 self.pc1_turn()
             elif self.difficulty == 2:
-                pass
+                self.pc2_turn()
             elif self.difficulty == 3:
                 pass
         self.game.mainloop()
 
-    def button(self, x, y):
-        if self.board[x][y]['text'] == " " and self.difficulty == 0:
-            self.board[x][y]['text'] = self.player
+    def button(self, row, col):
+        """Function that takes place whenever a button is pressed on the board"""
+        if self.board[row][col]['text'] == " " and self.difficulty == 0:
+            self.board[row][col]['text'] = self.player
             if self.player == 'X':
-                self.board[x][y]['fg'] = "red"
+                self.board[row][col]['fg'] = "red"
             else:
-                self.board[x][y]['fg'] = "blue"
+                self.board[row][col]['fg'] = "blue"
             if self.win_msg():
                 pass
             else:
                 self.next_player()
                 self.label['text'] = ("It's " + self.player + " turn ")
 
-        elif self.board[x][y]['text'] == " " and self.difficulty == 1:
+        elif self.board[row][col]['text'] == " " and self.difficulty == 1:
             if self.turn == 'player':
-                self.board[x][y]['text'] = self.player
+                self.board[row][col]['text'] = self.player
                 if self.win_msg():
                     pass
                 else:
                     self.next_turn()
                     self.label['text'] = ("It's " + self.turn + " turn ")
             if self.player == 'X':
-                self.board[x][y]['fg'] = "red"
+                self.board[row][col]['fg'] = "red"
             else:
-                self.board[x][y]['fg'] = "blue"
+                self.board[row][col]['fg'] = "blue"
             if self.turn == 'pc':
                 self.pc1_turn()
 
+        elif self.board[row][col]['text'] == " " and self.difficulty == 2:
+            if self.turn == 'player':
+                self.board[row][col]['text'] = self.player
+                if self.win_msg():
+                    pass
+                else:
+                    self.next_turn()
+                    self.label['text'] = ("It's " + self.turn + " turn ")
+            if self.player == 'X':
+                self.board[row][col]['fg'] = "red"
+            else:
+                self.board[row][col]['fg'] = "blue"
+            if self.turn == 'pc':
+                self.pc2_turn()
 
-        elif self.board[x][y]['text'] == " " and self.difficulty == 2:
-            pass
-
-        elif self.board[x][y]['text'] == " " and self.difficulty == 3:
+        elif self.board[row][col]['text'] == " " and self.difficulty == 3:
             pass
 
     def pc1_turn(self):
+        """Easy bot that plays against player. It makes random moves on the board"""
         tmp = False
         while not tmp:
             x = random.randint(0, 2)
@@ -138,6 +153,47 @@ class TicTacToe:
         if not self.win_msg():
             self.next_turn()
             self.label['text'] = ("It's " + self.turn + " turn ")
+
+    def pc2_turn(self):
+        """Intermediary bot that tries to block the player from making the winning move"""
+        for row in range(3):
+            for col in range(3):
+                if self.board[row][col]['text'] == ' ':
+                    self.board[row][col]['text'] = self.player
+                    if self.check_winner():
+                        self.board[row][col]['text'] = self.pc
+                        if self.pc == 'X':
+                            self.board[row][col]['fg'] = "red"
+                        else:
+                            self.board[row][col]['fg'] = "blue"
+                        if not self.win_msg():
+                            self.next_turn()
+                            self.label['text'] = ("It's " + self.turn + " turn ")
+                        return
+                    else:
+                        self.board[row][col]['text'] = ' '
+        self.pc1_turn()
+
+    def check_winner_tmp_board(self, tmp):
+        """Function that checks winner on temporary made board"""
+        for row in tmp:
+            if row[0]['text'] == row[1]['text'] == row[2]['text'] != " ":
+                return True
+
+        # Check Cols
+        for col in range(3):
+            if tmp[0][col]['text'] == tmp[1][col]['text'] == tmp[2][col]['text'] != " ":
+                return True
+
+        # Check Diagonals
+        if (
+                tmp[0][0]['text'] == tmp[1][1]['text'] == tmp[2][2]['text'] != " "
+                or tmp[0][2]['text'] == tmp[1][1]['text'] == tmp[2][0]['text'] != " "
+        ):
+            return True
+
+        # No Winners
+        return False
 
     def check_winner(self):
         """Function that checks the board for a winner. It checks colons, rows and diagonals and returns False if
@@ -171,6 +227,7 @@ class TicTacToe:
         return True
 
     def win_msg(self):
+        """Function that gives the winning/tie message if there is a winner/tie or false for None"""
         if self.check_winner():
             if self.difficulty == 0:
                 messagebox.showinfo("Tic Tac Toe ", "Player {} wins!".format(self.player))
@@ -188,12 +245,14 @@ class TicTacToe:
             return False
 
     def next_player(self):
+        """Function that changes the next player to play"""
         if self.player == 'X':
             self.player = 'O'
         else:
             self.player = 'X'
 
     def next_turn(self):
+        """Function that changes the turn from pc to player or vice-versa"""
         if self.turn == 'pc':
             self.turn = 'player'
         else:
