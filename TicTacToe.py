@@ -1,4 +1,5 @@
 import random
+import math
 import tkinter as tk
 from tkinter import messagebox, font
 
@@ -14,6 +15,7 @@ class TicTacToe:
         self.player = ''
         self.pc = ''
         self.turn = ''
+        self.winner = ''
         self.coin_toss()
         self.main_menu()
 
@@ -87,7 +89,7 @@ class TicTacToe:
             elif self.difficulty == 2:
                 self.pc2_turn()
             elif self.difficulty == 3:
-                pass
+                self.pc3_turn()
         self.game.mainloop()
 
     def button(self, row, col):
@@ -135,7 +137,19 @@ class TicTacToe:
                 self.pc2_turn()
 
         elif self.board[row][col]['text'] == " " and self.difficulty == 3:
-            pass
+            if self.turn == 'player':
+                self.board[row][col]['text'] = self.player
+                if self.win_msg():
+                    pass
+                else:
+                    self.next_turn()
+                    self.label['text'] = ("It's " + self.turn + " turn ")
+            if self.player == 'X':
+                self.board[row][col]['fg'] = "red"
+            else:
+                self.board[row][col]['fg'] = "blue"
+            if self.turn == 'pc':
+                self.pc3_turn()
 
     def pc1_turn(self):
         """Easy bot that plays against player. It makes random moves on the board"""
@@ -155,7 +169,8 @@ class TicTacToe:
             self.label['text'] = ("It's " + self.turn + " turn ")
 
     def pc2_turn(self):
-        """Intermediary bot that tries to block the player from making the winning move"""
+        """Intermediary bot that tries to block the player from making the winning move if nothing to block
+            it makes random choice"""
         for row in range(3):
             for col in range(3):
                 if self.board[row][col]['text'] == ' ':
@@ -174,17 +189,69 @@ class TicTacToe:
                         self.board[row][col]['text'] = ' '
         self.pc1_turn()
 
+    def pc3_turn(self):
+        """Advance bot using the MINIMAX algorithm to make the best possible move"""
+        best_score = -math.inf
+        best_move = None
+
+        empty_positions = []
+        for row in range(3):
+            for col in range(3):
+                if self.board[row][col]['text'] == ' ':
+                    empty_positions.append((row, col))
+
+        for move in empty_positions:
+            self.board[move[0]][move[1]]['text'] = self.pc
+            score = self.minimax(False)
+            self.board[move[0]][move[1]]['text'] = ' '
+            if score > best_score:
+                best_score = score
+                best_move = move
+        self.board[best_move[0]][best_move[1]]['text'] = self.pc
+        if self.pc == 'X':
+            self.board[best_move[0]][best_move[1]]['fg'] = "red"
+        else:
+            self.board[best_move[0]][best_move[1]]['fg'] = "blue"
+        if not self.win_msg():
+            self.next_turn()
+            self.label['text'] = ("It's " + self.turn + " turn ")
+
+    def minimax(self, is_max_turn):
+        if self.check_winner():
+            if self.winner == self.pc:
+                return 1
+            elif self.winner == self.player:
+                return -1
+        elif self.check_draw():
+            return 0
+
+        scores = []
+        empty_positions = []
+        for row in range(3):
+            for col in range(3):
+                if self.board[row][col]['text'] == ' ':
+                    empty_positions.append((row, col))
+
+        for move in empty_positions:
+            self.board[move[0]][move[1]]['text'] = self.pc if is_max_turn else self.player
+            scores.append(self.minimax(not is_max_turn))
+            self.board[move[0]][move[1]]['text'] = ' '
+
+        return max(scores) if is_max_turn else min(scores)
+
     def check_winner(self):
         """Function that checks the board for a winner. It checks colons, rows and diagonals and returns False if
         there are still moves to make and no winners, True if there is a winner"""
         # Check Rows
         for row in self.board:
             if row[0]['text'] == row[1]['text'] == row[2]['text'] != " ":
+                self.winner = row[0]['text']
                 return True
 
         # Check Cols
         for col in range(3):
             if self.board[0][col]['text'] == self.board[1][col]['text'] == self.board[2][col]['text'] != " ":
+                self.winner = self.board[0][col]['text']
                 return True
 
         # Check Diagonals
@@ -192,6 +259,7 @@ class TicTacToe:
                 self.board[0][0]['text'] == self.board[1][1]['text'] == self.board[2][2]['text'] != " "
                 or self.board[0][2]['text'] == self.board[1][1]['text'] == self.board[2][0]['text'] != " "
         ):
+            self.winner = self.board[1][1]['text']
             return True
 
         # No Winners
