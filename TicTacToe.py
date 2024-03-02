@@ -174,27 +174,6 @@ class TicTacToe:
                         self.board[row][col]['text'] = ' '
         self.pc1_turn()
 
-    def check_winner_tmp_board(self, tmp):
-        """Function that checks winner on temporary made board"""
-        for row in tmp:
-            if row[0]['text'] == row[1]['text'] == row[2]['text'] != " ":
-                return True
-
-        # Check Cols
-        for col in range(3):
-            if tmp[0][col]['text'] == tmp[1][col]['text'] == tmp[2][col]['text'] != " ":
-                return True
-
-        # Check Diagonals
-        if (
-                tmp[0][0]['text'] == tmp[1][1]['text'] == tmp[2][2]['text'] != " "
-                or tmp[0][2]['text'] == tmp[1][1]['text'] == tmp[2][0]['text'] != " "
-        ):
-            return True
-
-        # No Winners
-        return False
-
     def check_winner(self):
         """Function that checks the board for a winner. It checks colons, rows and diagonals and returns False if
         there are still moves to make and no winners, True if there is a winner"""
