@@ -13,11 +13,11 @@ class Main_menu:
         self.window.title("Tic Tac Toe dificulty selector")
         self.window.geometry("500x500")
         tictactoe_B1 = Button(self.window, text="Easy", fg='deep sky blue', width=500, font='summer', bd=5,
-                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self)))
+                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self, 1)))
         tictactoe_B2 = Button(self.window, text="Medium", fg='deep sky blue', width=500, font='summer', bd=5,
-                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self)))
+                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self, 2)))
         tictactoe_B3 = Button(self.window, text="Hard", fg='deep sky blue', width=500, font='summer', bd=5,
-                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self)))
+                              command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self, 3)))
         tictactoe_B4 = Button(self.window, text="Back", fg='deep sky blue', width=500, pady=15, font='summer', bd=5,
                               command=lambda: (self.window.destroy(), self.window.quit(), Main_menu()))
 
@@ -53,7 +53,7 @@ class Main_menu:
         self.window.geometry("500x500")
         multiplayer_B1 = Button(self.window, text="Tic Tac Toe", fg='deep sky blue', width=500, font='summer',
                                 bd=5,
-                                command=lambda: self.tic_tac_toe())
+                                command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self, 0)))
         multiplayer_B2 = Button(self.window, text="Connect 4", fg='deep sky blue', width=500, font='summer',
                                 bd=5,
                                 command=lambda: self.connect4())
