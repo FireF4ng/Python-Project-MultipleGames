@@ -35,24 +35,6 @@ class TicTacToe:
         self.start_button.pack(pady=20)
         self.game.mainloop()
 
-    def coin_toss(self):
-        """Function that determines what player goes first as X and what player gets 0"""
-        tmp = random.randint(1, 2)
-        if self.difficulty == 0:
-            if tmp == 1:
-                self.player = 'X'
-            else:
-                self.player = 'O'
-        else:
-            if tmp == 1:
-                self.player = 'X'
-                self.pc = 'O'
-                self.turn = 'player'
-            else:
-                self.player = 'O'
-                self.pc = 'X'
-                self.turn = 'pc'
-
     def ui(self):
         """Function that creates the board and UI"""
         self.game.destroy()
@@ -83,6 +65,9 @@ class TicTacToe:
         else:
             self.label = tk.Label(text="It's " + self.player + " turn ", font=('arial', 20, 'bold'))
         self.label.grid(row=3, column=0, columnspan=3)
+        self.initialize_game()
+
+    def initialize_game(self):
         if self.turn == 'pc':
             if self.difficulty == 1:
                 self.pc1_turn()
@@ -90,7 +75,24 @@ class TicTacToe:
                 self.pc2_turn()
             elif self.difficulty == 3:
                 self.pc3_turn()
-        self.game.mainloop()
+
+    def coin_toss(self):
+        """Function that determines what player goes first as X and what player gets 0"""
+        tmp = random.randint(1, 2)
+        if self.difficulty == 0:
+            if tmp == 1:
+                self.player = 'X'
+            else:
+                self.player = 'O'
+        else:
+            if tmp == 1:
+                self.player = 'X'
+                self.pc = 'O'
+                self.turn = 'player'
+            else:
+                self.player = 'O'
+                self.pc = 'X'
+                self.turn = 'pc'
 
     def button(self, row, col):
         """Function that takes place whenever a button is pressed on the board"""
@@ -194,29 +196,27 @@ class TicTacToe:
         best_score = -math.inf
         best_move = None
 
-        empty_positions = []
-        for row in range(3):
-            for col in range(3):
-                if self.board[row][col]['text'] == ' ':
-                    empty_positions.append((row, col))
+        empty_positions = [(row, col) for row in range(3) for col in range(3) if self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             self.board[move[0]][move[1]]['text'] = self.pc
-            score = self.minimax(False)
+            score = self.minimax(best_score, +math.inf, False)
             self.board[move[0]][move[1]]['text'] = ' '
             if score > best_score:
                 best_score = score
                 best_move = move
-        self.board[best_move[0]][best_move[1]]['text'] = self.pc
-        if self.pc == 'X':
-            self.board[best_move[0]][best_move[1]]['fg'] = "red"
-        else:
-            self.board[best_move[0]][best_move[1]]['fg'] = "blue"
-        if not self.win_msg():
-            self.next_turn()
-            self.label['text'] = ("It's " + self.turn + " turn ")
 
-    def minimax(self, is_max_turn):
+        if best_move is not None:
+            self.board[best_move[0]][best_move[1]]['text'] = self.pc
+            if self.pc == 'X':
+                self.board[best_move[0]][best_move[1]]['fg'] = "red"
+            else:
+                self.board[best_move[0]][best_move[1]]['fg'] = "blue"
+            if not self.win_msg():
+                self.next_turn()
+                self.label['text'] = ("It's " + self.turn + " turn ")
+
+    def minimax(self, alpha, beta, is_max_turn):
         if self.check_winner():
             if self.winner == self.pc:
                 return 1
@@ -226,16 +226,25 @@ class TicTacToe:
             return 0
 
         scores = []
-        empty_positions = []
-        for row in range(3):
-            for col in range(3):
-                if self.board[row][col]['text'] == ' ':
-                    empty_positions.append((row, col))
+        empty_positions = [(row, col) for row in range(3) for col in range(3) if self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
-            self.board[move[0]][move[1]]['text'] = self.pc if is_max_turn else self.player
-            scores.append(self.minimax(not is_max_turn))
+            if is_max_turn:
+                self.board[move[0]][move[1]]['text'] = self.pc
+            else:
+                self.board[move[0]][move[1]]['text'] = self.player
+
+            score = self.minimax(alpha, beta, not is_max_turn)
+            scores.append(score)
             self.board[move[0]][move[1]]['text'] = ' '
+            if is_max_turn:
+                alpha = max(alpha, score)
+                if beta <= alpha:
+                    break
+            else:
+                beta = min(beta, score)
+                if beta <= alpha:
+                    break
 
         return max(scores) if is_max_turn else min(scores)
 
