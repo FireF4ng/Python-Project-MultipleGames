@@ -2,7 +2,7 @@
 
 Menu --> Solo or multiplayer game
 
-Possible games --> Tic-Tac-Toe / Power 4 / battleship /  Five in a Row / chess
+Possible games --> Tic-Tac-Toe / Connect-4 / battleship /  Five in a Row / chess
 
 Singleplayer --> game choose --> Difficulty choose (Easy / Medium / Hard)
 
