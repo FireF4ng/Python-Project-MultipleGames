@@ -1,5 +1,5 @@
-from TicTacToe import TicTacToe
-from Connect4 import Connect4
+from TicTacToe.TicTacToe import TicTacToe
+from Connect_4.Connect4 import Connect4
 from tkinter import *
 
 
@@ -116,7 +116,7 @@ class Main_menu:
                          command=lambda: self.tic_tac_toe())
 
         solo_B2 = Button(self.window,
-                         text="Connect 4",
+                         text="Connect_4",
                          fg='deep sky blue',
                          width=500,
                          height=5,
@@ -152,7 +152,7 @@ class Main_menu:
                                 command=lambda: (self.window.destroy(), self.window.quit(), TicTacToe(self, 0)))
 
         multiplayer_B2 = Button(self.window,
-                                text="Connect 4",
+                                text="Connect_4",
                                 fg='deep sky blue',
                                 width=500,
                                 height=5,
