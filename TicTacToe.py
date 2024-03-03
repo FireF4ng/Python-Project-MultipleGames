@@ -68,6 +68,7 @@ class TicTacToe:
         self.initialize_game()
 
     def initialize_game(self):
+        """Function that initialises the game with a pc"""
         if self.turn == 'pc':
             if self.difficulty == 1:
                 self.pc1_turn()
@@ -217,6 +218,7 @@ class TicTacToe:
                 self.label['text'] = ("It's " + self.turn + " turn ")
 
     def minimax(self, alpha, beta, is_max_turn):
+        """The MINIMAX algorithm with alpha-beta pruning for optimisation"""
         if self.check_winner():
             if self.winner == self.pc:
                 return 1
