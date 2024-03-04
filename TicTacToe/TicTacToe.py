@@ -16,6 +16,7 @@ class TicTacToe:
         self.pc = ''
         self.turn = ''
         self.winner = ''
+        self.tmp = 0
         self.coin_toss()
         self.main_menu()
 
@@ -167,7 +168,8 @@ class TicTacToe:
         best_score = -math.inf
         best_move = None
 
-        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if self.board[row][col]['text'] == ' ']
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if
+                           self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             self.board[move[0]][move[1]]['text'] = self.pc
@@ -184,6 +186,7 @@ class TicTacToe:
             else:
                 self.board[best_move[0]][best_move[1]]['fg'] = "blue"
             if not self.win_msg():
+                print(self.tmp)
                 self.next_turn()
                 self.label['text'] = ("It's " + self.turn + " turn ")
 
@@ -198,7 +201,8 @@ class TicTacToe:
             return 0
 
         scores = []
-        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if self.board[row][col]['text'] == ' ']
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if
+                           self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             if is_max_turn:
@@ -212,10 +216,12 @@ class TicTacToe:
             if is_max_turn:
                 alpha = max(alpha, score)
                 if beta <= alpha:
+                    self.tmp += 1
                     break
             else:
                 beta = min(beta, score)
                 if beta <= alpha:
+                    self.tmp += 1
                     break
 
         return max(scores) if is_max_turn else min(scores)
