@@ -158,7 +158,7 @@ class Main_menu:
                                 height=5,
                                 font='summer',
                                 bd=5,
-                                command=lambda: Connect4(self, 0))
+                                command=lambda: (self.window.destroy(), self.window.quit(), Connect4(self, 0)))
 
         multiplayer_B3 = Button(self.window,
                                 text="Back",
