@@ -167,7 +167,7 @@ class TicTacToe:
         best_score = -math.inf
         best_move = None
 
-        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board)[0]) if self.board[row][col]['text'] == ' ']
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             self.board[move[0]][move[1]]['text'] = self.pc
@@ -198,7 +198,7 @@ class TicTacToe:
             return 0
 
         scores = []
-        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board)[0]) if self.board[row][col]['text'] == ' ']
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             if is_max_turn:
