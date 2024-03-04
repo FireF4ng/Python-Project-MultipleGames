@@ -4,12 +4,14 @@ import math
 import tkinter as tk
 from tkinter import messagebox, font, PhotoImage
 
+
 class Connect4:
 
     def __init__(self, main_menu_instance, difficulty):
         self.difficulty = difficulty
         self.main_menu_instance = main_menu_instance
         self.c4_game = tk.Tk()
+        self.start_button = None
         self.label = None
         self.board = [[None for _ in range(7)] for _ in range(6)]
         self.player = ''
@@ -61,7 +63,7 @@ class Connect4:
                                                  bg='white',
                                                  width=30,
                                                  height=30,
-                                                 command=lambda x=row, y=col: self.button(x, y))
+                                                 command=lambda y=col: self.button(y))
                 self.board[row][col].grid(row=row, column=col, padx=5, pady=5)
 
         if self.difficulty != 0:
@@ -81,7 +83,7 @@ class Connect4:
             elif self.difficulty == 3:
                 self.pc3_turn()
 
-    def button(self, x, y):
+    def button(self, y):
         for i in range(len(self.board) - 1, -1, -1):
             if self.board[i][y]['bg'] == 'white':
                 if self.player == 'red':
@@ -117,7 +119,6 @@ class Connect4:
                         self.board[row][col]['bg'] == self.board[row + 1][col + 1]['bg'] == self.board[row + 2][col + 2]['bg'] == self.board[row + 3][col + 3]['bg'] != 'white'
                 ):
                     return True
-
 
         # Check neg diagonals
         for col in range(len(self.board[0]) - 3):
