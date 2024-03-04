@@ -129,6 +129,21 @@ class Connect4:
             else:
                 self.pc2_turn()
 
+        elif self.difficulty == 3:
+            if self.turn == 'player':
+                for row in range(len(self.board) - 1, -1, -1):
+                    if self.board[row][col]['bg'] == 'white':
+                        self.board[row][col]['bg'] = self.player
+                        break
+                if self.win_msg():
+                    pass
+                else:
+                    self.next_turn()
+                    self.label['text'] = ("It's " + self.turn + " turn ")
+                    self.pc3_turn()
+            else:
+                self.pc3_turn()
+
     def pc1_turn(self):
         """Easy bot that plays against player. It makes random moves on the board"""
         tmp = False
@@ -161,8 +176,72 @@ class Connect4:
         self.pc1_turn()
 
     def pc3_turn(self):
-        """Advance bot using the ___ algorithm to make the best possible move"""
-        pass
+        """Advance bot using the MINIMAX algorithm with alpha-beta pruning to make the best possible move"""
+        best_score = -math.inf
+        best_move = None
+        row_tmp = 0
+
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board)[0]) if self.board[row][col]['bg'] == 'white']
+
+        for move in empty_positions:
+            for row in range(len(self.board) - 1, -1, -1):
+                if self.board[row][move[1]]['bg'] == 'white':
+                    self.board[row][move[1]]['bg'] = self.pc
+                    row_tmp = row
+                    break
+            score = self.minimax(best_score, +math.inf, False)
+            self.board[row_tmp][move[1]]['bg'] = 'white'
+            if score > best_score:
+                best_score = score
+                best_move = (row_tmp, move[1])
+
+        if best_move is not None:
+            self.board[best_move[0]][best_move[1]]['bg'] = self.pc
+            if not self.win_msg():
+                self.next_turn()
+                self.label['text'] = ("It's " + self.turn + " turn ")
+
+    def minimax(self, alpha, beta, is_max_turn):
+        """The MINIMAX algorithm with alpha-beta pruning for optimisation"""
+        if self.check_winner():
+            if self.winner == self.pc:
+                return 1
+            elif self.winner == self.player:
+                return -1
+        elif self.check_draw():
+            return 0
+
+        scores = []
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board)[0]) if self.board[row][col]['bg'] == 'white']
+        row_tmp = 0
+
+        for move in empty_positions:
+            if is_max_turn:
+                for row in range(len(self.board) - 1, -1, -1):
+                    if self.board[row][move[1]]['bg'] == 'white':
+                        self.board[row][move[1]]['bg'] = self.pc
+                        row_tmp = row
+                        break
+            else:
+                for row in range(len(self.board) - 1, -1, -1):
+                    if self.board[row][move[1]]['bg'] == 'white':
+                        self.board[row][move[1]]['bg'] = self.player
+                        row_tmp = row
+                        break
+
+            score = self.minimax(alpha, beta, not is_max_turn)
+            scores.append(score)
+            self.board[row_tmp][move[1]]['bg'] = 'white'
+            if is_max_turn:
+                alpha = max(alpha, score)
+                if beta <= alpha:
+                    break
+            else:
+                beta = min(beta, score)
+                if beta <= alpha:
+                    break
+
+        return max(scores) if is_max_turn else min(scores)
 
     def check_winner(self):
         """Function that checks the board for a winner. It checks colons, rows and diagonals and returns False if
@@ -171,6 +250,7 @@ class Connect4:
         for row in self.board:
             for col in range(len(row) - 3):
                 if row[col]['bg'] == row[col + 1]['bg'] == row[col + 2]['bg'] == row[col + 3]['bg'] != 'white':
+                    self.winner = row[col]['bg']
                     return True
 
         # Check cols
@@ -178,6 +258,7 @@ class Connect4:
             for row in range(len(self.board) - 3):
                 if self.board[row][col]['bg'] == self.board[row + 1][col]['bg'] == self.board[row + 2][col]['bg'] == \
                         self.board[row + 3][col]['bg'] != 'white':
+                    self.winner = self.board[row][col]['bg']
                     return True
 
         # Check pos diagonals
@@ -186,6 +267,7 @@ class Connect4:
                 if (
                         self.board[row][col]['bg'] == self.board[row + 1][col + 1]['bg'] == self.board[row + 2][col + 2]['bg'] == self.board[row + 3][col + 3]['bg'] != 'white'
                 ):
+                    self.winner = self.board[row][col]['bg']
                     return True
 
         # Check neg diagonals
@@ -194,6 +276,7 @@ class Connect4:
                 if (
                         self.board[row][col]['bg'] == self.board[row - 1][col + 1]['bg'] == self.board[row - 2][col + 2]['bg'] == self.board[row - 3][col + 3]['bg'] != 'white'
                 ):
+                    self.winner = self.board[row][col]['bg']
                     return True
 
         # No Winners

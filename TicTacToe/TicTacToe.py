@@ -110,7 +110,7 @@ class TicTacToe:
                 self.next_player()
                 self.label['text'] = ("It's " + self.player + " turn ")
 
-        elif self.board[row][col]['text'] == " " and self.difficulty == 1:
+        elif self.board[row][col]['text'] == " " and self.difficulty != 0:
             if self.turn == 'player':
                 self.board[row][col]['text'] = self.player
                 if self.win_msg():
@@ -122,38 +122,7 @@ class TicTacToe:
                 self.board[row][col]['fg'] = "red"
             else:
                 self.board[row][col]['fg'] = "blue"
-            if self.turn == 'pc':
-                self.pc1_turn()
-
-        elif self.board[row][col]['text'] == " " and self.difficulty == 2:
-            if self.turn == 'player':
-                self.board[row][col]['text'] = self.player
-                if self.win_msg():
-                    pass
-                else:
-                    self.next_turn()
-                    self.label['text'] = ("It's " + self.turn + " turn ")
-            if self.player == 'X':
-                self.board[row][col]['fg'] = "red"
-            else:
-                self.board[row][col]['fg'] = "blue"
-            if self.turn == 'pc':
-                self.pc2_turn()
-
-        elif self.board[row][col]['text'] == " " and self.difficulty == 3:
-            if self.turn == 'player':
-                self.board[row][col]['text'] = self.player
-                if self.win_msg():
-                    pass
-                else:
-                    self.next_turn()
-                    self.label['text'] = ("It's " + self.turn + " turn ")
-            if self.player == 'X':
-                self.board[row][col]['fg'] = "red"
-            else:
-                self.board[row][col]['fg'] = "blue"
-            if self.turn == 'pc':
-                self.pc3_turn()
+            self.initialize_game()
 
     def pc1_turn(self):
         """Easy bot that plays against player. It makes random moves on the board"""
@@ -194,11 +163,11 @@ class TicTacToe:
         self.pc1_turn()
 
     def pc3_turn(self):
-        """Advance bot using the MINIMAX algorithm to make the best possible move"""
+        """Advance bot using the MINIMAX algorithm with alpha-beta pruning to make the best possible move"""
         best_score = -math.inf
         best_move = None
 
-        empty_positions = [(row, col) for row in range(3) for col in range(3) if self.board[row][col]['text'] == ' ']
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board)[0]) if self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             self.board[move[0]][move[1]]['text'] = self.pc
@@ -229,7 +198,7 @@ class TicTacToe:
             return 0
 
         scores = []
-        empty_positions = [(row, col) for row in range(3) for col in range(3) if self.board[row][col]['text'] == ' ']
+        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board)[0]) if self.board[row][col]['text'] == ' ']
 
         for move in empty_positions:
             if is_max_turn:
