@@ -99,21 +99,16 @@ class Connect4:
     def check_winner(self):
         # Check rows
         for row in self.board:
-            tmp = 0
-            for elem in range(len(row) - 1):
-                if row[elem]['bg'] == row[elem + 1]['bg'] != 'white':
-                    tmp += 1
-            if tmp == 3:
-                return True
+            for col in range(len(row) - 3):
+                if row[col]['bg'] == row[col + 1]['bg'] == row[col + 2]['bg'] == row[col + 3]['bg'] != 'white':
+                    return True
 
         # Check cols
-        for row in range(len(self.board)):
-            tmp = 0
-            for col in range(len(self.board[0]) - 2):
-                if self.board[col][row]['bg'] == self.board[col + 1][row]['bg'] != 'white':
-                    tmp += 1
-            if tmp == 3:
-                return True
+        for col in range(len(self.board[0])):
+            for row in range(len(self.board) - 3):
+                if self.board[row][col]['bg'] == self.board[row + 1][col]['bg'] == self.board[row + 2][col]['bg'] == \
+                        self.board[row + 3][col]['bg'] != 'white':
+                    return True
 
         # Check pos diagonals
         for col in range(len(self.board[0]) - 3):
@@ -139,7 +134,7 @@ class Connect4:
         """Function that checks for a draw"""
         for row in self.board:
             for col in row:
-                if col['bg'] != 'white':
+                if col['bg'] == 'white':
                     return False
         return True
 
