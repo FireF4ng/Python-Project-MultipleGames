@@ -1,8 +1,7 @@
 import random
-from pathlib import Path
 import math
 import tkinter as tk
-from tkinter import messagebox, font, PhotoImage
+from tkinter import messagebox
 
 
 class Connect4:
@@ -83,22 +82,91 @@ class Connect4:
             elif self.difficulty == 3:
                 self.pc3_turn()
 
-    def button(self, y):
-        for i in range(len(self.board) - 1, -1, -1):
-            if self.board[i][y]['bg'] == 'white':
-                if self.player == 'red':
-                    self.board[i][y]['bg'] = 'red'
-                    self.next_player()
-                    self.label['text'] = ("It's " + self.player + " turn ")
+    def button(self, col):
+        """Function that takes place whenever a button is pressed on the board"""
+        if self.difficulty == 0:
+            for i in range(len(self.board) - 1, -1, -1):
+                if self.board[i][col]['bg'] == 'white':
+                    if self.player == 'red':
+                        self.board[i][col]['bg'] = 'red'
+                        self.next_player()
+                        self.label['text'] = ("It's " + self.player + " turn ")
+                    else:
+                        self.board[i][col]['bg'] = 'yellow'
+                        self.next_player()
+                        self.label['text'] = ("It's " + self.player + " turn ")
+                    break
+            if self.win_msg():
+                pass
+
+        elif self.difficulty == 1:
+            if self.turn == 'player':
+                for row in range(len(self.board) - 1, -1, -1):
+                    if self.board[row][col]['bg'] == 'white':
+                        self.board[row][col]['bg'] = self.player
+                        break
+                if self.win_msg():
+                    pass
                 else:
-                    self.board[i][y]['bg'] = 'yellow'
-                    self.next_player()
-                    self.label['text'] = ("It's " + self.player + " turn ")
-                break
-        if self.win_msg():
-            pass
+                    self.next_turn()
+                    self.label['text'] = ("It's " + self.turn + " turn ")
+                    self.pc1_turn()
+            else:
+                self.pc1_turn()
+
+        elif self.difficulty == 2:
+            if self.turn == 'player':
+                for row in range(len(self.board) - 1, -1, -1):
+                    if self.board[row][col]['bg'] == 'white':
+                        self.board[row][col]['bg'] = self.player
+                        break
+                if self.win_msg():
+                    pass
+                else:
+                    self.next_turn()
+                    self.label['text'] = ("It's " + self.turn + " turn ")
+                    self.pc2_turn()
+            else:
+                self.pc2_turn()
+
+    def pc1_turn(self):
+        """Easy bot that plays against player. It makes random moves on the board"""
+        tmp = False
+        while not tmp:
+            col = random.randint(0, 6)
+            for row in range(len(self.board) - 1, -1, -1):
+                if self.board[row][col]['bg'] == 'white':
+                    self.board[row][col]['bg'] = self.pc
+                    tmp = True
+                    break
+        if not self.win_msg():
+            self.next_turn()
+            self.label['text'] = ("It's " + self.turn + " turn ")
+
+    def pc2_turn(self):
+        """Intermediary bot that tries to block the player from making the winning move if nothing to block
+            it makes random choice"""
+        for col in range(len(self.board[0])):
+            for row in range(len(self.board) - 1, -1, -1):
+                if self.board[row][col]['bg'] == 'white':
+                    self.board[row][col]['bg'] = self.player
+                    if self.check_winner() and self.board[row + 1][col]['bg'] != 'white':
+                        self.board[row][col]['bg'] = self.pc
+                        if not self.win_msg():
+                            self.next_turn()
+                            self.label['text'] = ("It's " + self.turn + " turn ")
+                        return
+                    else:
+                        self.board[row][col]['bg'] = 'white'
+        self.pc1_turn()
+
+    def pc3_turn(self):
+        """Advance bot using the ___ algorithm to make the best possible move"""
+        pass
 
     def check_winner(self):
+        """Function that checks the board for a winner. It checks colons, rows and diagonals and returns False if
+                there are still moves to make and no winners, True if there is a winner"""
         # Check rows
         for row in self.board:
             for col in range(len(row) - 3):

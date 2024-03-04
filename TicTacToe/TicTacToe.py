@@ -280,8 +280,8 @@ class TicTacToe:
     def check_draw(self):
         """Function that checks for a draw"""
         for row in self.board:
-            for btn in row:
-                if " " in btn['text']:
+            for col in row:
+                if " " in col['text']:
                     return False
         return True
 
