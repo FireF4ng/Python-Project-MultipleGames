@@ -129,8 +129,8 @@ class Connect4:
         """Intermediary bot that tries to block the player from making the winning move if nothing to block
             it makes random choice"""
         for col in range(len(self.board[0])):
-            if self.find_empty_row(col) is not None:
-                row = self.find_empty_row(col)
+            row = self.find_empty_row(col)
+            if row is not None:
                 self.board[row][col]['bg'] = self.player
                 if self.check_winner() and self.board[row + 1][col]['bg'] != 'white':
                     self.board[row][col]['bg'] = self.pc
@@ -169,7 +169,7 @@ class Connect4:
                 self.label['text'] = ("It's " + self.turn + " turn ")
 
     def minimax(self, alpha, beta, is_max_turn, depth):
-        """The MINIMAX algorithm with alpha-beta pruning for optimisation"""
+        """The MINIMAX algorithm using the Negamax variant with alpha-beta pruning for optimisation"""
         if depth == 0 or self.check_winner() or self.check_draw():  # Base case
             if self.winner == self.pc:
                 return 1
