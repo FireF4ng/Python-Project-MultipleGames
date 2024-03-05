@@ -12,6 +12,7 @@ class TicTacToe:
         self.ttt_game = tk.Tk()
         self.label = None
         self.board = [[None for _ in range(3)] for _ in range(3)]
+        self.matrix = [['0', '0', '0'], ['0', '0', '0'], ['0', '0', '0']]
         self.player = ''
         self.pc = ''
         self.turn = ''
@@ -97,10 +98,17 @@ class TicTacToe:
                 self.pc = 'X'
                 self.turn = 'pc'
 
+    def update_matrix(self, row, col):
+        if self.turn == 'player':
+            self.matrix[row][col] = self.player
+        else:
+            self.matrix[row][col] = self.pc
+
     def button(self, row, col):
         """Function that takes place whenever a button is pressed on the board"""
         if self.board[row][col]['text'] == " " and self.difficulty == 0:
             self.board[row][col]['text'] = self.player
+            self.update_matrix(row, col)
             if self.player == 'X':
                 self.board[row][col]['fg'] = "red"
             else:
@@ -114,6 +122,7 @@ class TicTacToe:
         elif self.board[row][col]['text'] == " " and self.difficulty != 0:
             if self.turn == 'player':
                 self.board[row][col]['text'] = self.player
+                self.update_matrix(row, col)
                 if self.win_msg():
                     pass
                 else:
@@ -133,6 +142,7 @@ class TicTacToe:
             y = random.randint(0, 2)
             if self.board[x][y]['text'] == ' ':
                 self.board[x][y]['text'] = self.pc
+                self.update_matrix(x, y)
                 if self.pc == 'X':
                     self.board[x][y]['fg'] = "red"
                 else:
@@ -151,6 +161,7 @@ class TicTacToe:
                     self.board[row][col]['text'] = self.player
                     if self.check_winner():
                         self.board[row][col]['text'] = self.pc
+                        self.update_matrix(row, col)
                         if self.pc == 'X':
                             self.board[row][col]['fg'] = "red"
                         else:
@@ -181,6 +192,7 @@ class TicTacToe:
 
         if best_move is not None:
             self.board[best_move[0]][best_move[1]]['text'] = self.pc
+            self.update_matrix(best_move[0], best_move[1])
             if self.pc == 'X':
                 self.board[best_move[0]][best_move[1]]['fg'] = "red"
             else:
