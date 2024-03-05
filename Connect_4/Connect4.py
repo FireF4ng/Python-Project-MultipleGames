@@ -179,9 +179,9 @@ class Connect4:
         self.tmp += 1
         if depth == 0 or self.check_winner() or self.check_draw():
             if self.winner == self.pc:
-                return 100
+                return 1000
             elif self.winner == self.player:
-                return -100
+                return -1000
             elif self.check_draw():
                 return 0
             else:
