@@ -1,7 +1,9 @@
 import random
 import math
+import requests
 import tkinter as tk
 from tkinter import messagebox, font
+import time
 
 
 class TicTacToe:
@@ -12,10 +14,10 @@ class TicTacToe:
         self.ttt_game = tk.Tk()
         self.label = None
         self.board = [[None for _ in range(3)] for _ in range(3)]
-        self.matrix = [['0', '0', '0'], ['0', '0', '0'], ['0', '0', '0']]
-        self.player = ''
+        self.matrix = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
+        self.player = 'X'
         self.pc = ''
-        self.turn = ''
+        self.turn = 'player1'
         self.winner = ''
         self.tmp = 0
         self.coin_toss()
@@ -70,24 +72,29 @@ class TicTacToe:
         self.label.grid(row=3, column=0, columnspan=3)
         self.initialize_game()
 
+
     def initialize_game(self):
         """Function that initialises the game with a pc"""
-        if self.turn == 'pc':
-            if self.difficulty == 1:
-                self.pc1_turn()
-            elif self.difficulty == 2:
-                self.pc2_turn()
-            elif self.difficulty == 3:
-                self.pc3_turn()
+        if self.difficulty != 0:
+            if self.turn == 'pc':
+                if self.difficulty == 1:
+                    self.pc1_turn()
+                elif self.difficulty == 2:
+                    self.pc2_turn()
+                elif self.difficulty == 3:
+                    self.pc3_turn()
+        else:
+            self.get_matrix()
+            if self.turn == 'player2':
+                self.player = 'O'
+                self.label['text'] = ("It's " + self.player + " turn ")
+
 
     def coin_toss(self):
         """Function that determines what player goes first as X and what player gets 0"""
         tmp = random.randint(1, 2)
         if self.difficulty == 0:
-            if tmp == 1:
-                self.player = 'X'
-            else:
-                self.player = 'O'
+            pass
         else:
             if tmp == 1:
                 self.player = 'X'
@@ -99,25 +106,32 @@ class TicTacToe:
                 self.turn = 'pc'
 
     def update_matrix(self, row, col):
-        if self.turn == 'player':
-            self.matrix[row][col] = self.player
+        """update the matrix after a tkinter btn is press"""
+        if self.player == 'X':
+            self.matrix[row][col] = 'X'
         else:
-            self.matrix[row][col] = self.pc
+            self.matrix[row][col] = 'O'
 
     def button(self, row, col):
         """Function that takes place whenever a button is pressed on the board"""
         if self.board[row][col]['text'] == " " and self.difficulty == 0:
-            self.board[row][col]['text'] = self.player
-            self.update_matrix(row, col)
-            if self.player == 'X':
-                self.board[row][col]['fg'] = "red"
-            else:
-                self.board[row][col]['fg'] = "blue"
-            if self.win_msg():
-                pass
-            else:
-                self.next_player()
-                self.label['text'] = ("It's " + self.player + " turn ")
+            if self.board[row][col]['text'] == " ":
+                self.board[row][col]['text'] = self.player
+                self.turn = 'player2' if self.turn == 'player1' else 'player1'
+                if self.player == 'X':
+                    self.board[row][col]['fg'] = "red"
+                else:
+                    self.board[row][col]['fg'] = "blue"
+                self.ttt_game.update()
+                self.update_matrix(row, col)
+                self.put_matrix()
+                time.sleep(2)
+                if self.check_winner():
+                    self.win_msg()
+                elif self.check_draw():
+                    self.win_msg()
+                else:
+                    self.get_matrix()
 
         elif self.board[row][col]['text'] == " " and self.difficulty != 0:
             if self.turn == 'player':
@@ -142,7 +156,6 @@ class TicTacToe:
             y = random.randint(0, 2)
             if self.board[x][y]['text'] == ' ':
                 self.board[x][y]['text'] = self.pc
-                self.update_matrix(x, y)
                 if self.pc == 'X':
                     self.board[x][y]['fg'] = "red"
                 else:
@@ -161,7 +174,6 @@ class TicTacToe:
                     self.board[row][col]['text'] = self.player
                     if self.check_winner():
                         self.board[row][col]['text'] = self.pc
-                        self.update_matrix(row, col)
                         if self.pc == 'X':
                             self.board[row][col]['fg'] = "red"
                         else:
@@ -192,7 +204,6 @@ class TicTacToe:
 
         if best_move is not None:
             self.board[best_move[0]][best_move[1]]['text'] = self.pc
-            self.update_matrix(best_move[0], best_move[1])
             if self.pc == 'X':
                 self.board[best_move[0]][best_move[1]]['fg'] = "red"
             else:
@@ -276,14 +287,20 @@ class TicTacToe:
         """Function that gives the winning/tie message if there is a winner/tie or false for None"""
         if self.check_winner():
             if self.difficulty == 0:
-                messagebox.showinfo("Tic Tac Toe ", "Player {} wins!".format(self.player))
+                messagebox.showinfo("Tic Tac Toe ", "Player {} wins!".format(self.winner))
             else:
                 messagebox.showinfo("Tic Tac Toe ", "{} wins!".format(self.turn))
+            self.matrix = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
+            self.turn = 'player2'
+            self.put_matrix()
             self.ttt_game.quit()
             self.ttt_game.destroy()
             self.main_menu_instance.menu()
         elif self.check_draw():
             messagebox.showinfo("Tic Tac Toe", "It's a draw!")
+            self.matrix = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
+            self.turn = 'player2'
+            self.put_matrix()
             self.ttt_game.quit()
             self.ttt_game.destroy()
             self.main_menu_instance.menu()
@@ -301,5 +318,68 @@ class TicTacToe:
         """Function that changes the turn from pc to player or vice-versa"""
         if self.turn == 'pc':
             self.turn = 'player'
-        else:
+        elif self.turn == 'player':
             self.turn = 'pc'
+        elif self.turn == 'player1':
+            self.turn = 'player2'
+        elif self.turn == 'player2':
+            self.turn = 'player1'
+
+    def get_matrix(self):
+        """get the matrix from the server"""
+        headers = {
+            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
+            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+        }
+
+        response = requests.get('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers)
+        print("get", response)
+
+        if response.status_code == 200:
+            data = response.json()
+            matrix_tictactoe = data.get('Board_P1')
+            player = data.get('Player')
+            print("cloud: ", matrix_tictactoe)
+            print("local", self.matrix)
+            if self.matrix != matrix_tictactoe or player != self.turn:
+                self.matrix = matrix_tictactoe
+                self.update_button()
+                if self.check_winner() or self.check_draw():
+                    self.win_msg()
+                else:
+                    self.turn = 'player2' if player == 'player2' else 'player1'
+                    self.label['text'] = ("It's " + self.player + " turn ")
+                    time.sleep(0.1)
+            else:
+                time.sleep(2)
+                self.label['text'] = "Wait for next player turn"
+                self.get_matrix()
+
+    def update_button(self):
+        """update tkinter btn """
+        for i in range(3):
+            for j in range(3):
+                if self.matrix[i][j] == 'X':
+                    self.board[i][j]['text'] = 'X'
+                    self.board[i][j]['fg'] = "red"
+                if self.matrix[i][j] == 'O':
+                    self.board[i][j]['text'] = 'O'
+                    self.board[i][j]['fg'] = "blue"
+        print(self.matrix)
+
+    def put_matrix(self):
+        """put matrix and player in the server"""
+        headers = {
+            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
+            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'Content-Type': 'application/json',
+        }
+
+        json_data = {
+            'Board_P1': self.matrix,
+
+            'Player': self.turn,
+        }
+
+        response = requests.put('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers, json=json_data)
+        print("put", response)
