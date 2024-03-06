@@ -18,7 +18,7 @@ class Connect4:
         self.turn = ''
         self.winner = ''
         self.tmp = 0
-        self.depth = 2
+        self.depth = 10
         self.coin_toss()
         self.main_menu()
 
@@ -103,13 +103,14 @@ class Connect4:
 
         elif self.difficulty != 0:
             if self.turn == 'player':
-                self.board[self.find_empty_row(col)][col]['bg'] = self.player
-                if self.win_msg():
-                    pass
-                else:
-                    self.next_turn()
-                    self.label['text'] = ("It's " + self.turn + " turn ")
-                    self.initialize_game()
+                if self.find_empty_row(col) is not None:
+                    self.board[self.find_empty_row(col)][col]['bg'] = self.player
+                    if self.win_msg():
+                        pass
+                    else:
+                        self.next_turn()
+                        self.label['text'] = ("It's " + self.turn + " turn ")
+                        self.initialize_game()
             else:
                 self.initialize_game()
 
@@ -146,65 +147,138 @@ class Connect4:
         """Advance bot using the MINIMAX algorithm with alpha-beta pruning to make the best possible move"""
         best_score = -math.inf
         best_move = None
+        beta = math.inf
 
-        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if
-                           self.board[row][col]['bg'] == 'white']
+        empty_positions = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
+                           self.find_empty_row(col) is not None
+                           and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
 
         for move in empty_positions:
-            row = self.find_empty_row(move[0])
+            row = self.find_empty_row(move[1])
             if row is not None:
                 self.board[row][move[1]]['bg'] = self.pc
-                score = self.minimax(-math.inf, +math.inf, False, self.depth - 1)
+                score = self.minimax(best_score, beta, False, self.depth)
+                print("Move:", move, "Score:", score)
                 self.board[row][move[1]]['bg'] = 'white'
-
                 if score > best_score:
                     best_score = score
                     best_move = (row, move[1])
 
         if best_move is not None:
-            self.board[best_move[0]][best_move[1]]['bg'] = self.pc
-            if not self.win_msg():
+            row = self.find_empty_row(best_move[1])
+            self.board[row][best_move[1]]['bg'] = self.pc
+            if self.win_msg():
+                pass
+            else:
                 print(self.tmp)
                 self.next_turn()
                 self.label['text'] = ("It's " + self.turn + " turn ")
 
     def minimax(self, alpha, beta, is_max_turn, depth):
         """The MINIMAX algorithm using the Negamax variant with alpha-beta pruning for optimisation"""
-        if depth == 0 or self.check_winner() or self.check_draw():  # Base case
+        self.tmp += 1
+        if depth == 0 or self.check_winner() or self.check_draw():
             if self.winner == self.pc:
-                return 1
+                return 1000
             elif self.winner == self.player:
-                return -1
+                return -1000
+            elif self.check_draw():
+                return 0
             else:
                 return 0
 
-        scores = []
-        empty_positions = [(row, col) for row in range(len(self.board)) for col in range(len(self.board[0])) if
-                           self.board[row][col]['bg'] == 'white']
+        if is_max_turn:
+            max_score = -math.inf
+            empty_positions = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
+                               self.find_empty_row(col) is not None
+                               and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
 
-        for move in empty_positions:
-            if is_max_turn:
+            for move in empty_positions:
                 row = self.find_empty_row(move[1])
-                self.board[row][move[1]]['bg'] = self.pc
-            else:
-                row = self.find_empty_row(move[1])
-                self.board[row][move[1]]['bg'] = self.player
+                if row is not None:
+                    self.board[row][move[1]]['bg'] = self.pc
+                    score = self.minimax(alpha, beta, False, depth - 1)
+                    print("Max Score:", score)
+                    max_score = max(max_score, score)
+                    alpha = max(alpha, score)
+                    self.board[row][move[1]]['bg'] = 'white'
+                    if beta <= alpha:
+                        break
+            return max_score
+        else:
+            min_score = math.inf
+            empty_positions = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
+                               self.find_empty_row(col) is not None
+                               and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
 
-            score = self.minimax(alpha, beta, not is_max_turn, depth - 1)
-            scores.append(score)
-            self.board[row][move[1]]['bg'] = 'white'
-            if is_max_turn:
-                alpha = max(alpha, score)
-                if beta <= alpha:
-                    self.tmp += 1
-                    break
-            else:
-                beta = min(beta, score)
-                if beta <= alpha:
-                    self.tmp += 1
-                    break
-        # print(max(scores) if is_max_turn else min(scores))
-        return max(scores) if is_max_turn else min(scores)
+            for move in empty_positions:
+                row = self.find_empty_row(move[1])
+                if row is not None:
+                    self.board[row][move[1]]['bg'] = self.player
+                    score = self.minimax(alpha, beta, True, depth - 1)
+                    print("Min Score:", score)
+                    min_score = min(min_score, score)
+                    beta = min(beta, score)
+                    self.board[row][move[1]]['bg'] = 'white'
+                    if beta <= alpha:
+                        break
+            return min_score
+
+    def count_scores(self):
+        """Function that counts the scores for a Connect-4 game."""
+        score = 0
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                # Check Row
+                if col <= len(self.board[0]) - 4:
+                    if self.board[row][col]['bg'] == self.pc:
+                        score += 1
+                    elif self.board[row][col]['bg'] == self.player:
+                        score -= 1
+
+                # Check Col
+                if row <= len(self.board) - 4:
+                    if self.board[row][col]['bg'] == self.pc:
+                        score += 1
+                    elif self.board[row][col]['bg'] == self.player:
+                        score -= 1
+
+                # Check diagonal (positive)
+                if row <= len(self.board) - 4 and col <= len(self.board[0]) - 4:
+                    if (
+                            self.board[row][col]['bg'] == self.pc
+                            and self.board[row + 1][col + 1]['bg'] == self.pc
+                            and self.board[row + 2][col + 2]['bg'] == self.pc
+                            and self.board[row + 3][col + 3]['bg'] == self.pc
+                    ):
+                        score += 1
+                    elif (
+                            self.board[row][col]['bg'] == self.player
+                            and self.board[row + 1][col + 1]['bg'] == self.player
+                            and self.board[row + 2][col + 2]['bg'] == self.player
+                            and self.board[row + 3][col + 3]['bg'] == self.player
+                    ):
+                        score -= 1
+
+                # Check diagonal (negative)
+                if row >= 3 and col <= len(self.board[0]) - 4:
+                    if (
+                            self.board[row][col]['bg'] == self.pc
+                            and self.board[row - 1][col + 1]['bg'] == self.pc
+                            and self.board[row - 2][col + 2]['bg'] == self.pc
+                            and self.board[row - 3][col + 3]['bg'] == self.pc
+                    ):
+                        score += 1
+                    elif (
+                            self.board[row][col]['bg'] == self.player
+                            and self.board[row - 1][col + 1]['bg'] == self.player
+                            and self.board[row - 2][col + 2]['bg'] == self.player
+                            and self.board[row - 3][col + 3]['bg'] == self.player
+                    ):
+                        score -= 1
+        print(score)
+        return score
+
 
     def find_empty_row(self, col):
         """Function to find the empty row of a column"""
@@ -314,3 +388,6 @@ class Connect4:
         else:
             self.turn = 'pc'
             self.label['text'] = ("It's " + self.turn + " turn ")
+
+if __name__ == '__main__':
+    Connect4(None,3)
