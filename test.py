@@ -381,6 +381,3 @@ class TicTacToe:
         response = requests.put('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers, json=json_data)
         print("put", response)
 
-
-if __name__ == '__main__':
-    TicTacToe(None, 0)
