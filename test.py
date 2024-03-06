@@ -14,15 +14,14 @@ class TicTacToe:
         self.ttt_game = tk.Tk()
         self.label = None
         self.board = [[None for _ in range(3)] for _ in range(3)]
-        self.matrix = [["0", "0", "0"],["0", "0", "0"],["0", "0", "0"]]
-        self.player = ''
+        self.matrix = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
+        self.player = 'X'
         self.pc = ''
-        self.turn = ''
+        self.turn = 'player1'
         self.winner = ''
         self.tmp = 0
         self.coin_toss()
         self.main_menu()
-
 
     def main_menu(self):
         """Function that creates a menu with start button before actual game."""
@@ -39,31 +38,6 @@ class TicTacToe:
                                       command=self.ui)
         self.start_button.pack(pady=20)
         self.ttt_game.mainloop()
-
-
-    def inf(self):
-        """loop tu get the matrix from the server"""
-        while True:
-            headers = {
-                'X-Parse-Application-Id': 'Lbk8H7W3fSm13njHGYHMvaxtvLn52MoZM3cU81az',
-                'X-Parse-REST-API-Key': 'rvK7s70LyUyX0VmHF2ZZ1kSjkT9viMJigoH5lkGk',
-            }
-
-            response = requests.get('https://parseapi.back4app.com/classes/jeu', headers=headers)
-
-            data = response.json()
-
-            if 'results' in data:
-                results = data['results']
-                for result in results:
-                    matrix_tictactoe = result.get('matrix_tictactoe')
-                    player = result.get('player')
-                    if self.matrix != matrix_tictactoe:
-                        self.matrix = matrix_tictactoe
-                        self.update_button()
-                        return
-
-            time.sleep(5)
 
     def ui(self):
         """Function that creates the board and UI"""
@@ -96,8 +70,12 @@ class TicTacToe:
         else:
             self.label = tk.Label(text="It's " + self.player + " turn ", font=('arial', 20, 'bold'))
         self.label.grid(row=3, column=0, columnspan=3)
-        self.put_matrix()
         self.initialize_game()
+        self.get_matrix()
+        if self.turn == 'player2':
+            self.player = 'O'
+            self.label['text'] = ("It's " + self.player + " turn ")
+
 
     def initialize_game(self):
         """Function that initialises the game with a pc"""
@@ -113,10 +91,7 @@ class TicTacToe:
         """Function that determines what player goes first as X and what player gets 0"""
         tmp = random.randint(1, 2)
         if self.difficulty == 0:
-            if tmp == 1:
-                self.player = 'X'
-            else:
-                self.player = 'O'
+            pass
         else:
             if tmp == 1:
                 self.player = 'X'
@@ -139,12 +114,15 @@ class TicTacToe:
         if self.board[row][col]['text'] == " " and self.difficulty == 0:
             if self.board[row][col]['text'] == " ":
                 self.board[row][col]['text'] = self.player
+                self.turn = 'player2' if self.turn == 'player1' else 'player1'
                 if self.player == 'X':
                     self.board[row][col]['fg'] = "red"
                 else:
                     self.board[row][col]['fg'] = "blue"
+                self.ttt_game.update()
                 self.update_matrix(row, col)
                 self.put_matrix()
+                time.sleep(2)
                 if self.check_winner():
                     self.win_msg()
                 elif self.check_draw():
@@ -306,15 +284,20 @@ class TicTacToe:
         """Function that gives the winning/tie message if there is a winner/tie or false for None"""
         if self.check_winner():
             if self.difficulty == 0:
-                messagebox.showinfo("Tic Tac Toe ", "Player {} wins!".format(self.player))
+                messagebox.showinfo("Tic Tac Toe ", "Player {} wins!".format(self.winner))
             else:
                 messagebox.showinfo("Tic Tac Toe ", "{} wins!".format(self.turn))
-            self.inf()
+            self.matrix = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
+            self.turn = 'player2'
+            self.put_matrix()
             self.ttt_game.quit()
             self.ttt_game.destroy()
             self.main_menu_instance.menu()
         elif self.check_draw():
             messagebox.showinfo("Tic Tac Toe", "It's a draw!")
+            self.matrix = [["0", "0", "0"], ["0", "0", "0"], ["0", "0", "0"]]
+            self.turn = 'player2'
+            self.put_matrix()
             self.ttt_game.quit()
             self.ttt_game.destroy()
             self.main_menu_instance.menu()
@@ -332,55 +315,43 @@ class TicTacToe:
         """Function that changes the turn from pc to player or vice-versa"""
         if self.turn == 'pc':
             self.turn = 'player'
-        else:
+        elif self.turn == 'player':
             self.turn = 'pc'
+        elif self.turn == 'player1':
+            self.turn = 'player2'
+        elif self.turn == 'player2':
+            self.turn = 'player1'
 
     def get_matrix(self):
         """get the matrix from the server"""
-        if self.player == 'X':
-            headers = {
-                'X-Parse-Application-Id': 'Lbk8H7W3fSm13njHGYHMvaxtvLn52MoZM3cU81az',
-                'X-Parse-REST-API-Key': 'rvK7s70LyUyX0VmHF2ZZ1kSjkT9viMJigoH5lkGk',
-            }
+        headers = {
+            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
+            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+        }
 
-            response = requests.get('https://parseapi.back4app.com/classes/jeu/Bfvi3zFB43', headers=headers)
-            print("get", response)
+        response = requests.get('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers)
+        print("get", response)
+
+        if response.status_code == 200:
             data = response.json()
+            matrix_tictactoe = data.get('Board_P1')
+            player = data.get('Player')
+            print("cloud: ", matrix_tictactoe)
+            print("local", self.matrix)
+            if self.matrix != matrix_tictactoe or player != self.turn:
+                self.matrix = matrix_tictactoe
+                self.update_button()
+                if self.check_winner() or self.check_draw():
+                    self.win_msg()
+                else:
+                    self.turn = 'player2' if player == 'player2' else 'player1'
+                    self.label['text'] = ("It's " + self.player + " turn ")
+                    time.sleep(0.1)
+            else:
+                time.sleep(2)
+                self.label['text'] = "Wait for next player turn"
+                self.get_matrix()
 
-            if 'results' in data:
-                results = data['results']
-                for result in results:
-                    matrix_tictactoe = result.get('matrix_tictactoe')
-                    player = result.get('player')
-                    self.matrix = matrix_tictactoe
-                    self.player = player
-                    self.update_button()
-                    if player == 'X':
-                        self.label['text'] = ("It's " + self.player + " turn ")
-                    else:
-                        self.label['text'] = ("It's " + self.player + " turn ")
-        else:
-            headers = {
-                'X-Parse-Application-Id': 'Lbk8H7W3fSm13njHGYHMvaxtvLn52MoZM3cU81az',
-                'X-Parse-REST-API-Key': 'rvK7s70LyUyX0VmHF2ZZ1kSjkT9viMJigoH5lkGk',
-            }
-
-            response = requests.get('https://parseapi.back4app.com/classes/jeu/Bfvi3zFB43', headers=headers)
-            print("get", response)
-            data = response.json()
-
-            if 'results' in data:
-                results = data['results']
-                for result in results:
-                    matrix_tictactoe = result.get('matrix_tictactoe')
-                    player = result.get('player')
-                    self.matrix = matrix_tictactoe
-                    self.player = player
-                    self.update_button()
-                    if player == 'X':
-                        self.label['text'] = ("It's " + self.player + " turn ")
-                    else:
-                        self.label['text'] = ("It's " + self.player + " turn ")
     def update_button(self):
         """update tkinter btn """
         for i in range(3):
@@ -395,37 +366,21 @@ class TicTacToe:
 
     def put_matrix(self):
         """put matrix and player in the server"""
-        if self.player == 'X':
-            headers = {
-                'X-Parse-Application-Id': 'Lbk8H7W3fSm13njHGYHMvaxtvLn52MoZM3cU81az',
-                'X-Parse-REST-API-Key': 'rvK7s70LyUyX0VmHF2ZZ1kSjkT9viMJigoH5lkGk',
-                'Content-Type': 'application/json',
-            }
+        headers = {
+            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
+            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'Content-Type': 'application/json',
+        }
 
-            json_data = {
-                'matrix_tictactoe': self.matrix,
+        json_data = {
+            'Board_P1': self.matrix,
 
-                'player': self.player,
-            }
+            'Player': self.turn,
+        }
 
-            response = requests.put('https://parseapi.back4app.com/classes/jeu/Bfvi3zFB43', headers=headers, json=json_data)
-            print("put", response)
+        response = requests.put('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers, json=json_data)
+        print("put", response)
 
-        else:
-            headers = {
-                'X-Parse-Application-Id': 'Lbk8H7W3fSm13njHGYHMvaxtvLn52MoZM3cU81az',
-                'X-Parse-REST-API-Key': 'rvK7s70LyUyX0VmHF2ZZ1kSjkT9viMJigoH5lkGk',
-                'Content-Type': 'application/json',
-            }
-
-            json_data = {
-                'matrix_tictactoe': self.matrix,
-
-                'player': self.player,
-            }
-
-            response = requests.post('https://parseapi.back4app.com/classes/jeu/Bfvi3zFB43', headers=headers, json=json_data)
-            print("put", response)
 
 if __name__ == '__main__':
     TicTacToe(None, 0)
