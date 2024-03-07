@@ -125,7 +125,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@MrFireFang](https://twitter.com/MrFireFang) - dcentov@guardiaschool.fr
+Daniel - [@MrFireFang](https://twitter.com/MrFireFang) - dcentov@guardiaschool.fr
 
 Project Link: [https://github.com/FireF4ng/Python-Project-MultipleGames](https://github.com/FireF4ng/Python-Project-MultipleGames)
 
