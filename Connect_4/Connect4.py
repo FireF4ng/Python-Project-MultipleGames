@@ -157,7 +157,7 @@ class Connect4:
             row = self.find_empty_row(col)
             if row is not None:
                 self.board[row][col]['bg'] = self.player
-                if self.check_winner() and self.board[row + 1][col]['bg'] != 'white':
+                if self.check_winner() and row < len(self.board) - 1 and self.board[row + 1][col]['bg'] != 'white':
                     self.board[row][col]['bg'] = self.pc
                     if not self.win_msg():
                         self.next_turn()
