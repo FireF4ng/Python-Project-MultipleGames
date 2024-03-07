@@ -481,7 +481,3 @@ class Connect4:
 
         response = requests.put('https://parseapi.back4app.com/classes/Connect4/fxVijXxo6U', headers=headers, json=json_data)
         print("put", response)
-
-
-if __name__ == '__main__':
-    Connect4(None, 0)
