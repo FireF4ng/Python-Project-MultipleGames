@@ -18,7 +18,7 @@ class Connect4:
         self.turn = ''
         self.winner = ''
         self.tmp = 0
-        self.depth = 10
+        self.depth = 6
         self.coin_toss()
         self.main_menu()
 
@@ -145,140 +145,128 @@ class Connect4:
 
     def pc3_turn(self):
         """Advance bot using the MINIMAX algorithm with alpha-beta pruning to make the best possible move"""
-        best_score = -math.inf
-        best_move = None
-        beta = math.inf
+        col, minimax_score = self.minimax(self.depth, -math.inf, math.inf, True)
 
-        empty_positions = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
-                           self.find_empty_row(col) is not None
-                           and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
+        if self.find_empty_row(col[1]) is not None:
+            row = self.find_empty_row(col[1])
+            self.board[row][col[1]]['bg'] = self.pc
 
-        for move in empty_positions:
-            row = self.find_empty_row(move[1])
-            if row is not None:
-                self.board[row][move[1]]['bg'] = self.pc
-                score = self.minimax(best_score, beta, False, self.depth)
-                print("Move:", move, "Score:", score)
-                self.board[row][move[1]]['bg'] = 'white'
-                if score > best_score:
-                    best_score = score
-                    best_move = (row, move[1])
-
-        if best_move is not None:
-            row = self.find_empty_row(best_move[1])
-            self.board[row][best_move[1]]['bg'] = self.pc
-            if self.win_msg():
-                pass
-            else:
+            if not self.win_msg():
                 print(self.tmp)
                 self.next_turn()
                 self.label['text'] = ("It's " + self.turn + " turn ")
+        else:
+            self.pc3_turn()
 
-    def minimax(self, alpha, beta, is_max_turn, depth):
+    def minimax(self, depth, alpha, beta, maximizingplayer):
         """The MINIMAX algorithm using the Negamax variant with alpha-beta pruning for optimisation"""
         self.tmp += 1
-        if depth == 0 or self.check_winner() or self.check_draw():
-            if self.winner == self.pc:
-                return 1000
-            elif self.winner == self.player:
-                return -1000
-            elif self.check_draw():
-                return 0
-            else:
-                return 0
+        valid_locations = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
+                           self.find_empty_row(col) is not None
+                           and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
 
-        if is_max_turn:
-            max_score = -math.inf
-            empty_positions = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
-                               self.find_empty_row(col) is not None
-                               and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
+        is_terminal = self.check_winner() or len(valid_locations) == 0
+        if depth == 0 or is_terminal:
+            if is_terminal:
+                if self.winner == self.pc:
+                    return None, 100000000000000
+                elif self.winner == self.player:
+                    return None, -10000000000000
+                else:  # Game is over, no more valid moves
+                    return None, 0
+            else:  # Depth is zero
+                return None, self.score_position()
 
-            for move in empty_positions:
-                row = self.find_empty_row(move[1])
-                if row is not None:
-                    self.board[row][move[1]]['bg'] = self.pc
-                    score = self.minimax(alpha, beta, False, depth - 1)
-                    print("Max Score:", score)
-                    max_score = max(max_score, score)
-                    alpha = max(alpha, score)
-                    self.board[row][move[1]]['bg'] = 'white'
-                    if beta <= alpha:
-                        break
-            return max_score
-        else:
-            min_score = math.inf
-            empty_positions = [(self.find_empty_row(col), col) for col in range(len(self.board[0])) if
-                               self.find_empty_row(col) is not None
-                               and self.board[self.find_empty_row(col)][col]['bg'] == 'white']
+        if maximizingplayer:
+            value = -math.inf
+            column = random.choice(valid_locations)
+            for col in valid_locations:
+                row = self.find_empty_row(col[1])
+                self.board[row][col[1]]['bg'] = self.pc
+                new_score = self.minimax(depth - 1, alpha, beta, False)[1]
+                self.board[row][col[1]]['bg'] = 'white'
+                if new_score > value:
+                    value = new_score
+                    column = col
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
+            return column, value
 
-            for move in empty_positions:
-                row = self.find_empty_row(move[1])
-                if row is not None:
-                    self.board[row][move[1]]['bg'] = self.player
-                    score = self.minimax(alpha, beta, True, depth - 1)
-                    print("Min Score:", score)
-                    min_score = min(min_score, score)
-                    beta = min(beta, score)
-                    self.board[row][move[1]]['bg'] = 'white'
-                    if beta <= alpha:
-                        break
-            return min_score
+        else:  # Minimizing player
+            value = math.inf
+            column = random.choice(valid_locations)
+            for col in valid_locations:
+                row = self.find_empty_row(col[1])
+                self.board[row][col[1]]['bg'] = self.player
+                new_score = self.minimax(depth - 1, alpha, beta, True)[1]
+                self.board[row][col[1]]['bg'] = 'white'
+                if new_score < value:
+                    value = new_score
+                    column = col
+                beta = min(beta, value)
+                if alpha >= beta:
+                    break
+            return column, value
 
-    def count_scores(self):
-        """Function that counts the scores for a Connect-4 game."""
+    def score_position(self):
+        """Function that scores the current board position."""
         score = 0
-        for row in range(len(self.board)):
-            for col in range(len(self.board[0])):
-                # Check Row
-                if col <= len(self.board[0]) - 4:
-                    if self.board[row][col]['bg'] == self.pc:
-                        score += 1
-                    elif self.board[row][col]['bg'] == self.player:
-                        score -= 1
 
-                # Check Col
-                if row <= len(self.board) - 4:
-                    if self.board[row][col]['bg'] == self.pc:
-                        score += 1
-                    elif self.board[row][col]['bg'] == self.player:
-                        score -= 1
+        column_count = len(self.board[0])
+        row_count = len(self.board)
+        piece = self.pc
+        window_length = 4
 
-                # Check diagonal (positive)
-                if row <= len(self.board) - 4 and col <= len(self.board[0]) - 4:
-                    if (
-                            self.board[row][col]['bg'] == self.pc
-                            and self.board[row + 1][col + 1]['bg'] == self.pc
-                            and self.board[row + 2][col + 2]['bg'] == self.pc
-                            and self.board[row + 3][col + 3]['bg'] == self.pc
-                    ):
-                        score += 1
-                    elif (
-                            self.board[row][col]['bg'] == self.player
-                            and self.board[row + 1][col + 1]['bg'] == self.player
-                            and self.board[row + 2][col + 2]['bg'] == self.player
-                            and self.board[row + 3][col + 3]['bg'] == self.player
-                    ):
-                        score -= 1
+        # Score center column
+        center_array = [self.board[i][column_count // 2]['bg'] for i in range(len(self.board))]
+        center_count = center_array.count(piece)
+        score += center_count * 3
 
-                # Check diagonal (negative)
-                if row >= 3 and col <= len(self.board[0]) - 4:
-                    if (
-                            self.board[row][col]['bg'] == self.pc
-                            and self.board[row - 1][col + 1]['bg'] == self.pc
-                            and self.board[row - 2][col + 2]['bg'] == self.pc
-                            and self.board[row - 3][col + 3]['bg'] == self.pc
-                    ):
-                        score += 1
-                    elif (
-                            self.board[row][col]['bg'] == self.player
-                            and self.board[row - 1][col + 1]['bg'] == self.player
-                            and self.board[row - 2][col + 2]['bg'] == self.player
-                            and self.board[row - 3][col + 3]['bg'] == self.player
-                    ):
-                        score -= 1
-        print(score)
+        # Score Horizontal
+        for r in range(row_count):
+            row_array = [self.board[r][c]['bg'] for c in range(len(self.board[r]))]
+            for c in range(column_count - 3):
+                window = row_array[c:c + window_length]
+                score += self.evaluate_window(window, piece)
+
+        # Score Vertical
+        for c in range(column_count):
+            col_array = [self.board[r][c]['bg'] for r in range(len(self.board))]
+            for r in range(row_count - 3):
+                window = col_array[r:r + window_length]
+                score += self.evaluate_window(window, piece)
+
+        # Score positive sloped diagonal
+        for r in range(row_count - 3):
+            for c in range(column_count - 3):
+                window = [self.board[r + i][c + i]['bg'] for i in range(window_length)]
+                score += self.evaluate_window(window, piece)
+
+        # Score negative sloped diagonal
+        for r in range(row_count - 3):
+            for c in range(column_count - 3):
+                window = [self.board[r + 3 - i][c + i]['bg'] for i in range(window_length)]
+                score += self.evaluate_window(window, piece)
+
         return score
 
+    def evaluate_window(self, window, piece):
+        """Function that evaluates the score of a window of 4 positions"""
+        score = 0
+        opponent_piece = 'yellow' if piece == 'red' else 'red'
+
+        if window.count(piece) == 4:
+            score += 100
+        elif window.count(piece) == 3 and window.count(None) == 1:
+            score += 5
+        elif window.count(piece) == 2 and window.count(None) == 2:
+            score += 2
+
+        if window.count(opponent_piece) == 3 and window.count(None) == 1:
+            score -= 4
+
+        return score
 
     def find_empty_row(self, col):
         """Function to find the empty row of a column"""
