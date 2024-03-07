@@ -376,6 +376,3 @@ class Connect4:
         else:
             self.turn = 'pc'
             self.label['text'] = ("It's " + self.turn + " turn ")
-
-if __name__ == '__main__':
-    Connect4(None,3)
