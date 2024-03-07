@@ -307,13 +307,6 @@ class TicTacToe:
         else:
             return False
 
-    def next_player(self):
-        """Function that changes the next player to play"""
-        if self.player == 'X':
-            self.player = 'O'
-        else:
-            self.player = 'X'
-
     def next_turn(self):
         """Function that changes the turn from pc to player or vice-versa"""
         if self.turn == 'pc':
@@ -339,8 +332,6 @@ class TicTacToe:
             data = response.json()
             matrix_tictactoe = data.get('Board_P1')
             player = data.get('Player')
-            print("cloud: ", matrix_tictactoe)
-            print("local", self.matrix)
             if self.matrix != matrix_tictactoe or player != self.turn:
                 self.matrix = matrix_tictactoe
                 self.update_button()
@@ -351,8 +342,9 @@ class TicTacToe:
                     self.label['text'] = ("It's " + self.player + " turn ")
                     time.sleep(0.1)
             else:
-                time.sleep(2)
                 self.label['text'] = "Wait for next player turn"
+                self.ttt_game.update()
+                time.sleep(2)
                 self.get_matrix()
 
     def update_button(self):
@@ -365,7 +357,6 @@ class TicTacToe:
                 if self.matrix[i][j] == 'O':
                     self.board[i][j]['text'] = 'O'
                     self.board[i][j]['fg'] = "blue"
-        print(self.matrix)
 
     def put_matrix(self):
         """put matrix and player in the server"""

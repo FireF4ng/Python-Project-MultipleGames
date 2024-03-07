@@ -1,7 +1,9 @@
 import random
 import math
+import requests
 import tkinter as tk
 from tkinter import messagebox
+import time
 
 
 class Connect4:
@@ -13,9 +15,15 @@ class Connect4:
         self.start_button = None
         self.label = None
         self.board = [[None for _ in range(7)] for _ in range(6)]
-        self.player = ''
+        self.matrix = [["white", "white", "white", "white", "white", "white", "white"],
+                       ["white", "white", "white", "white", "white", "white", "white"],
+                       ["white", "white", "white", "white", "white", "white", "white"],
+                       ["white", "white", "white", "white", "white", "white", "white"],
+                       ["white", "white", "white", "white", "white", "white", "white"],
+                       ["white", "white", "white", "white", "white", "white", "white"]]
+        self.player = 'red'
         self.pc = ''
-        self.turn = ''
+        self.turn = 'player1'
         self.winner = ''
         self.tmp = 0
         self.depth = 6
@@ -76,30 +84,46 @@ class Connect4:
 
     def initialize_game(self):
         """Function that initializes the game with a pc"""
-        if self.turn == 'pc':
-            if self.difficulty == 1:
-                self.pc1_turn()
-            elif self.difficulty == 2:
-                self.pc2_turn()
-            elif self.difficulty == 3:
-                self.pc3_turn()
+        if self.difficulty != 0:
+            if self.turn == 'pc':
+                if self.difficulty == 1:
+                    self.pc1_turn()
+                elif self.difficulty == 2:
+                    self.pc2_turn()
+                elif self.difficulty == 3:
+                    self.pc3_turn()
+        else:
+            self.get_matrix()
+            if self.turn == 'player2':
+                self.player = 'yellow'
+                self.label['text'] = ("It's " + self.player + " turn ")
 
     def button(self, col):
         """Function that takes place whenever a button is pressed on the board"""
         if self.difficulty == 0:
+            tmp = 0
             for i in range(len(self.board) - 1, -1, -1):
                 if self.board[i][col]['bg'] == 'white':
+                    tmp = i
                     if self.player == 'red':
                         self.board[i][col]['bg'] = 'red'
-                        self.next_player()
+                        self.turn = 'player2' if self.turn == 'player1' else 'player1'
                         self.label['text'] = ("It's " + self.player + " turn ")
                     else:
                         self.board[i][col]['bg'] = 'yellow'
-                        self.next_player()
+                        self.turn = 'player2' if self.turn == 'player1' else 'player1'
                         self.label['text'] = ("It's " + self.player + " turn ")
                     break
-            if self.win_msg():
-                pass
+            self.c4_game.update()
+            self.update_matrix(tmp, col)
+            self.put_matrix()
+            time.sleep(5)
+            if self.check_winner():
+                self.win_msg()
+            elif self.check_draw():
+                self.win_msg()
+            else:
+                self.get_matrix()
 
         elif self.difficulty != 0:
             if self.turn == 'player':
@@ -329,14 +353,30 @@ class Connect4:
         if self.check_winner():
             if self.difficulty == 0:
                 self.next_player()
-                messagebox.showinfo("Connect-4 ", "Player {} wins!".format(self.player))
+                messagebox.showinfo("Connect-4 ", "Player {} wins!".format(self.winner))
             else:
                 messagebox.showinfo("Connect-4 ", "{} wins!".format(self.turn))
+            self.matrix = [["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"]]
+            self.turn = 'player2'
+            self.put_matrix()
             self.c4_game.quit()
             self.c4_game.destroy()
             self.main_menu_instance.menu()
         elif self.check_draw():
             messagebox.showinfo("Connect-4", "It's a draw!")
+            self.matrix = [["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"],
+                           ["white", "white", "white", "white", "white", "white", "white"]]
+            self.turn = 'player2'
+            self.put_matrix()
             self.c4_game.quit()
             self.c4_game.destroy()
             self.main_menu_instance.menu()
@@ -347,10 +387,7 @@ class Connect4:
         """Function that determines what player goes first as X and what player gets 0"""
         tmp = random.randint(1, 2)
         if self.difficulty == 0:
-            if tmp == 1:
-                self.player = 'red'
-            else:
-                self.player = 'yellow'
+            pass
         else:
             if tmp == 1:
                 self.player = 'red'
@@ -360,6 +397,13 @@ class Connect4:
                 self.player = 'yellow'
                 self.pc = 'red'
                 self.turn = 'pc'
+
+    def update_matrix(self, row, col):
+        """update the matrix after a tkinter btn is press"""
+        if self.player == 'red':
+            self.matrix[row][col] = "red"
+        else:
+            self.matrix[row][col] = "yellow"
 
     def next_player(self):
         """Function that changes the next player to play"""
@@ -373,6 +417,71 @@ class Connect4:
         if self.turn == 'pc':
             self.turn = 'player'
             self.label['text'] = ("It's " + self.turn + " turn ")
-        else:
+        elif self.turn == 'player':
             self.turn = 'pc'
             self.label['text'] = ("It's " + self.turn + " turn ")
+        elif self.turn == 'player1':
+            self.turn = 'player2'
+            self.label['text'] = ("It's " + self.player + " turn ")
+        elif self.turn == 'player2':
+            self.turn = 'player1'
+            self.label['text'] = ("It's " + self.player + " turn ")
+
+    def get_matrix(self):
+        """get the matrix from the server"""
+        headers = {
+            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
+            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+        }
+
+        response = requests.get('https://parseapi.back4app.com/classes/Connect4/fxVijXxo6U', headers=headers)
+        print("get", response)
+
+        if response.status_code == 200:
+            data = response.json()
+            matrix_connect4 = data.get('Board')
+            player = data.get('Player')
+            if self.matrix != matrix_connect4 or player != self.turn:
+                self.matrix = matrix_connect4
+                self.update_button()
+                if self.check_winner() or self.check_draw():
+                    self.win_msg()
+                else:
+                    self.turn = 'player2' if player == 'player2' else 'player1'
+                    self.label['text'] = ("It's " + self.player + " turn ")
+                    time.sleep(0.1)
+            else:
+                self.label['text'] = "Wait for next player turn"
+                self.c4_game.update()
+                time.sleep(5)
+                self.get_matrix()
+
+    def update_button(self):
+        """update tkinter btn """
+        for i in range(len(self.board)):
+            for j in range(len(self.board[0])):
+                if self.matrix[i][j] == "red":
+                    self.board[i][j]['bg'] = 'red'
+                if self.matrix[i][j] == "yellow":
+                    self.board[i][j]['bg'] = 'yellow'
+
+    def put_matrix(self):
+        """put matrix and player in the server"""
+        headers = {
+            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
+            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'Content-Type': 'application/json',
+        }
+
+        json_data = {
+            'Board': self.matrix,
+
+            'Player': self.turn,
+        }
+
+        response = requests.put('https://parseapi.back4app.com/classes/Connect4/fxVijXxo6U', headers=headers, json=json_data)
+        print("put", response)
+
+
+if __name__ == '__main__':
+    Connect4(None, 0)
