@@ -321,11 +321,11 @@ class TicTacToe:
     def get_matrix(self):
         """get the matrix from the server"""
         headers = {
-            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
-            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'X-Parse-Application-Id': 'Put your X-Parse-Application-Id',
+            'X-Parse-REST-API-Key': 'Put Your X-Parse-REST-API-Key',
         }
 
-        response = requests.get('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers)
+        response = requests.get('Put Your API URL', headers=headers)
         print("get", response)
 
         if response.status_code == 200:
@@ -361,8 +361,8 @@ class TicTacToe:
     def put_matrix(self):
         """put matrix and player in the server"""
         headers = {
-            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
-            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'X-Parse-Application-Id': 'Put your X-Parse-Application-Id',
+            'X-Parse-REST-API-Key': 'Put Your X-Parse-REST-API-Key',
             'Content-Type': 'application/json',
         }
 
@@ -372,5 +372,5 @@ class TicTacToe:
             'Player': self.turn,
         }
 
-        response = requests.put('https://parseapi.back4app.com/classes/TicTacToe/Bfvi3zFB43', headers=headers, json=json_data)
+        response = requests.put('Put Your API URL', headers=headers, json=json_data)
         print("put", response)
