@@ -430,11 +430,11 @@ class Connect4:
     def get_matrix(self):
         """get the matrix from the server"""
         headers = {
-            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
-            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'X-Parse-Application-Id': 'Put your X-Parse-Application-Id',
+            'X-Parse-REST-API-Key': 'Put Your X-Parse-REST-API-Key',
         }
 
-        response = requests.get('https://parseapi.back4app.com/classes/Connect4/fxVijXxo6U', headers=headers)
+        response = requests.get('Put your API URL', headers=headers)
         print("get", response)
 
         if response.status_code == 200:
@@ -468,8 +468,8 @@ class Connect4:
     def put_matrix(self):
         """put matrix and player in the server"""
         headers = {
-            'X-Parse-Application-Id': 'X58r6H1upkvmKFVBCNao97SW6ZoAtKJpHTBkyJ0J',
-            'X-Parse-REST-API-Key': 'FOnT1QylTIkjeK0oGNykyhW3jbUNAKPbDzGaJwTZ',
+            'X-Parse-Application-Id': 'Put your X-Parse-Application-Id',
+            'X-Parse-REST-API-Key': 'Put Your X-Parse-REST-API-Key',
             'Content-Type': 'application/json',
         }
 
@@ -479,5 +479,5 @@ class Connect4:
             'Player': self.turn,
         }
 
-        response = requests.put('https://parseapi.back4app.com/classes/Connect4/fxVijXxo6U', headers=headers, json=json_data)
+        response = requests.put('Put your API URL', headers=headers, json=json_data)
         print("put", response)
