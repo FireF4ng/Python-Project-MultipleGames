@@ -59,7 +59,6 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `FireF4ng`, `Python-Project-MultipleGames`, `@MrFireFang`, `Daniel Centov`, `dcentov@guardiaschool.fr`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
